@@ -4,15 +4,12 @@ import Event from '../models/Event.js';
 
 const router = express.Router();
 
-/**
- * ROUTE - GET : Récupérer le titre d'un événement
- * Endpoint: GET /api/events/:id/title
- */
+
 router.get('/:id/title', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validation ID
+   
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         success: false,
@@ -20,7 +17,7 @@ router.get('/:id/title', async (req, res) => {
       });
     }
 
-    // Récupérer l'événement
+  
     const event = await Event.findById(id);
 
     if (!event) {
