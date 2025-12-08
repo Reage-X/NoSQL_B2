@@ -1,43 +1,46 @@
 import java.util.ArrayList;
-import java.util.Comparator;
 
 public class Compte
 {
-    private String user_name;
-    private String MDP;
+    private String id;
+    private String username;
+    private String password;
     private String email;
-    private ArrayList<Integer> Id_Events;
+    private ArrayList<String> eventIds;
 
-    public Compte(String user_name, String MDP, String email) {
-        this.user_name = user_name;
-        this.MDP = MDP;
+    public Compte(String username, String password, String email) {
+        this.username = username;
+        this.password = password;
         this.email = email;
+        this.eventIds = new ArrayList<>();
     }
     public Compte() {}
 
-    public String getUser_name()                                    { return user_name; }
-    public String getMDP()                                          { return MDP; }
+
+    public String getId()                                           { return id; }
+    public String getUsername()                                     { return username; }
+    public String getPassword()                                     { return password; }
     public String getEmail()                                        { return email; }
-    public ArrayList<Integer> getId_Events()                        { return Id_Events; }
-    public Integer getId_Events(int index) {
-        if (Id_Events != null && index >= 0 && index < Id_Events.size()) {
-            return Id_Events.get(index);
+    public ArrayList<String> getEventIds()                          { return eventIds; }
+    public String getEventIds(int index) {
+        if (eventIds != null && index >= 0 && index < eventIds.size()) {
+            return eventIds.get(index);
         }
         return null;
     }
+    
 
-
-    public void setUser_name(String user_name)                      { this.user_name = user_name; }
-    public void setMDP(String MDP)                                  { this.MDP = MDP; }
+    public void setId(String id)                                    { this.id = id; }
+    public void setUsername(String username)                        { this.username = username; }
+    public void setPassword(String password)                        { this.password = password; }
     public void setEmail(String email)                              { this.email = email; }
-    public void setId_Events(ArrayList<Integer> Id_Events)          { this.Id_Events = Id_Events; }
-    public void addId_Events(Integer nouveauId_Event) {
-        if (this.Id_Events == null) {
-            this.Id_Events = new ArrayList<>();
+    public void setEventIds(ArrayList<String> eventIds)             { this.eventIds = eventIds; }
+    public void addEventIds(String nouveauId_Event) {
+        if (this.eventIds == null) {
+            this.eventIds = new ArrayList<>();
         }
-        if (nouveauId_Event >= 0) {
-            this.Id_Events.add(nouveauId_Event);
-            this.Id_Events.sort(Comparator.reverseOrder());
+        if (nouveauId_Event != null && !this.eventIds.contains(nouveauId_Event)) {
+            this.eventIds.add(nouveauId_Event);
         }
     }
 }
