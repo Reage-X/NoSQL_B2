@@ -5,16 +5,13 @@ import validator from 'validator';
 
 const router = express.Router();
 
-/**
- * ROUTE - PATCH : Modifier le titre d'un événement
- * Endpoint: PATCH /api/events/:id/title
- */
+
 router.patch('/:id/title', async (req, res) => {
   try {
     const { id } = req.params;
     const { title } = req.body;
 
-    // Validation de l'ID
+   
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         success: false,
@@ -22,7 +19,7 @@ router.patch('/:id/title', async (req, res) => {
       });
     }
 
-    // Validation du titre
+   
     if (!title || typeof title !== "string" || validator.isEmpty(title.trim())) {
       return res.status(400).json({
         success: false,
@@ -30,7 +27,7 @@ router.patch('/:id/title', async (req, res) => {
       });
     }
 
-    // Vérifier si l'événement existe
+ 
     const event = await Event.findById(id);
     
     if (!event) {
@@ -40,7 +37,7 @@ router.patch('/:id/title', async (req, res) => {
       });
     }
 
-    // Modifier le titre
+
     event.title = title.trim();
     await event.save();
 
