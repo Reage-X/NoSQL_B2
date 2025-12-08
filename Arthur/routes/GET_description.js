@@ -6,30 +6,34 @@ import validator from 'validator';
 const router = express.Router();
 
 /**
- * ROUTE 1 - GET : Récupérer les descriptions des événements avec filtres avancés
+ * ROUTE 2 - GET : Récupérer les descriptions des événements avec filtres avancés
  * Endpoint: GET /api/events/descriptions
  * Query params: 
  *   - search: recherche textuelle dans les descriptions
  *   - category: filtrer par catégorie
  *   - status: filtrer par statut
+ *   - minLength: longueur minimale de la description
  *   - page: numéro de page (défaut: 1)
  *   - limit: nombre d'éléments par page (défaut: 10)
  *   - sortBy: tri par date (newest/oldest)
  */
+
 router.get('/descriptions', async (req, res) => {
   try {
     const { 
       search, 
       category, 
-      status, 
+      status,
+      minLength,
       page = 1, 
       limit = 10,
       sortBy = 'newest'
     } = req.query;
 
-    //construction filtre
+    //construction du filtre
     const filter = {};
     
+    //recherche textuelle dans les descriptions
     if (search && !validator.isEmpty(search.trim())) {
       filter.$or = [
         { description: { $regex: search, $options: 'i' } },
@@ -37,19 +41,28 @@ router.get('/descriptions', async (req, res) => {
       ];
     }
     
+    //filtre par catégorie
     if (category) {
       filter.category = category;
     }
     
+    //filtre par statut
     if (status) {
       filter.status = status;
+    }
+
+    //filtre par longueur minimale de description
+    if (minLength) {
+      filter.$expr = {
+        $gte: [{ $strLenCP: "$description" }, parseInt(minLength)]
+      };
     }
 
     //pagination
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const sortOrder = sortBy === 'oldest' ? 1 : -1;
 
-    //requete projection pour optimiser
+    //requete projection optimisée
     const events = await Event.find(filter)
       .select('title description date location category status organizer')
       .sort({ date: sortOrder })
@@ -60,9 +73,15 @@ router.get('/descriptions', async (req, res) => {
     //comptage total pour la pagination
     const total = await Event.countDocuments(filter);
 
+    //ajouter longueur de chaque description
+    const eventsWithLength = events.map(event => ({
+      ...event,
+      descriptionLength: event.description.length
+    }));
+
     res.status(200).json({
       success: true,
-      data: events,
+      data: eventsWithLength,
       pagination: {
         currentPage: parseInt(page),
         totalPages: Math.ceil(total / parseInt(limit)),

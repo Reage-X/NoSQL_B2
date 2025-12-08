@@ -6,16 +6,17 @@ import validator from 'validator';
 const router = express.Router();
 
 /**
- * ROUTE 2 - PUT : Mettre à jour la description d'un événement
- * Endpoint: PUT /api/events/:id/description
- * Body: { description: "nouvelle description" }
+ * ROUTE 1 - POST : Créer ou mettre à jour la description d'un événement
+ * Endpoint: POST /api/events/:id/description
+ * Body: { description: "description de l'événement" }
  */
-router.put('/:id/description', async (req, res) => {
+
+router.post('/:id/description', async (req, res) => {
   try {
     const { id } = req.params;
     const { description } = req.body;
 
-    // Validation de l'ID
+    //validation de ID
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         success: false,
@@ -38,27 +39,29 @@ router.put('/:id/description', async (req, res) => {
       });
     }
 
-    //maj
-    const updatedEvent = await Event.findByIdAndUpdate(
-      id,
-      { description: description.trim() },
-      { 
-        new: true, // Retourner le document mis à jour
-        runValidators: true // Exécuter les validateurs du schéma
-      }
-    ).select('title description updatedAt');
-
-    if (!updatedEvent) {
+    //verif si evenement existe
+    const event = await Event.findById(id);
+    
+    if (!event) {
       return res.status(404).json({
         success: false,
         message: 'Événement non trouvé'
       });
     }
 
+    //maj description
+    event.description = description.trim();
+    await event.save();
+
     res.status(200).json({
       success: true,
       message: 'Description mise à jour avec succès',
-      data: updatedEvent
+      data: {
+        _id: event._id,
+        title: event.title,
+        description: event.description,
+        updatedAt: event.updatedAt
+      }
     });
 
   } catch (error) {
