@@ -9,7 +9,11 @@ const router = express.Router();
 router.put('/:id/username', async (req, res) => {
   try {
     const { id } = req.params;
+<<<<<<< HEAD
     const { newUsername, password } = req.body;
+=======
+    const { newUsername, password } = req.body; // On exige le MDP pour valider l'identité
+>>>>>>> 50d1733c42968cf939028067942907766c65cad4
 
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({ success: false, message: "ID invalide" });
@@ -44,6 +48,10 @@ router.put('/:id/username', async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
+<<<<<<< HEAD
 });
 
 export default router;
+=======
+});
+>>>>>>> 50d1733c42968cf939028067942907766c65cad4
