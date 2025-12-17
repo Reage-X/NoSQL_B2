@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const EventSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  url: { type: String }, // Correspond à votre champ 'url' (image/video)
   description: { type: String },
+<<<<<<< HEAD
   startDate: { type: Date, required: true }, // MongoDB gère les dates nativement
   endDate: { type: Date },
   location: { type: String },
@@ -18,14 +18,23 @@ const EventSchema = new mongoose.Schema({
     ref: 'Compte' 
   }]
 });
+=======
+  date: { type: Date, required: true },
+  popularity: { type: Number, default: 0 },
+  creator: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Compte',
+    required: true 
+  }
+}, { timestamps: true });
+>>>>>>> 7bbd7959251b4d683dfb7d73128c145c3ce0e23e
 
-// Pour que l'objet JSON renvoyé ait un champ 'id' (string) au lieu de '_id' (object)
 EventSchema.set('toJSON', {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString();
-    delete returnedObject._id;
-    delete returnedObject.__v;
+  transform: (doc, ret) => {
+    ret.id = ret._id.toString();
+    delete ret._id;
+    delete ret.__v;
   }
 });
 
-module.exports = mongoose.model('Event', EventSchema);
+export default mongoose.model('Event', EventSchema);
