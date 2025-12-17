@@ -37,14 +37,16 @@ app.use('/api/tom/agreg', RoutesAgreg);
 app.use('/api/tom/get', RoutesGET);
 app.use('/api/tom/post', RoutesPOST);
 // ============================================================================
-// ROUTES SERGE - Opérations utilisateur
+// ROUTES SERGE - Opérations utilisateur et agrégations
 // ============================================================================
 const AgregCompteEvent = require('./Serge/AgregCompteEvent');
+const AgregOrgaEvent = require('./Serge/AgregOrgaEvent');
 const UpdateUserName = require('./Serge/UpdateUserName');
 const UpdateUserPassword = require('./Serge/UpdateUserPassword');
 const UserNameExist = require('./Serge/UserNameExist');
 
 app.use('/api/events', AgregCompteEvent);
+app.use('/api/events', AgregOrgaEvent);
 app.use('/api/user/name', UpdateUserName);
 app.use('/api/user/password', UpdateUserPassword);
 app.use('/api/user/check', UserNameExist);
