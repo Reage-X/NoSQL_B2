@@ -2,7 +2,7 @@
 
 Ce projet consiste en une API REST robuste construite avec **Node.js** et **Express**, connectée à un cluster **MongoDB Atlas**. Elle gère un système d'événements avec des fonctionnalités avancées de recherche, d'agrégation et d'exportation de données.
 
-## 👥 Équipe et Structure
+## Équipe et Structure
 Pour ce projet, nous avons adopté une architecture modulaire. Chaque membre dispose de son propre fichier de routes pour éviter les conflits et isoler les fonctionnalités :
 
 * **Tom** : `/api/events/tom`
@@ -18,6 +18,6 @@ Pour ce projet, nous avons adopté une architecture modulaire. Chaque membre dis
 
 1. **Cloner le dépôt** :
    ```bash
-   git clone <votre-url-github>
-
+   git clone https://github.com/Reage-X/NoSQL_B2.git
    cd NoSQL_B2
+   node server.js
