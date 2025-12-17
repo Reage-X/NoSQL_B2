@@ -1,23 +1,18 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const CompteSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }, // Le hash du mot de passe
-  eventIds: [{ 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Event' 
-  }]
-});
+  password: { type: String, required: true }
+}, { timestamps: true });
 
 CompteSchema.set('toJSON', {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString();
-    delete returnedObject._id;
-    delete returnedObject.__v;
-    // Sécurité : ne jamais renvoyer le mot de passe, même hashé, au Java
-    delete returnedObject.password; 
+  transform: (doc, ret) => {
+    ret.id = ret._id.toString();
+    delete ret._id;
+    delete ret.__v;
+    delete ret.password;
   }
 });
 
-module.exports = mongoose.model('Compte', CompteSchema);
+export default mongoose.model('Compte', CompteSchema);
