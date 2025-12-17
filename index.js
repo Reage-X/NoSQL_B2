@@ -7,60 +7,36 @@ app.use(express.json());
 // ============================================================================
 // ROUTES ARTHUR - Agrégations et descriptions d'événements
 // ============================================================================
-const arthurAgreg = require('./Arthur/routes/agreg_MongoDB');
-const arthurGetDesc = require('./Arthur/routes/GET_description');
-const arthurPostDesc = require('./Arthur/routes/POST_description');
+const ArthurRoutes = require('./routes/eventRoutesArthur');
 
-app.use('/api/events/agreg', arthurAgreg);
-app.use('/api/events/desc', arthurGetDesc);
-app.use('/api/events/desc', arthurPostDesc);
+app.use('/api', ArthurRoutes);
 
 // ============================================================================
 // ROUTES AZIZ - Événements, incidents, services
 // ============================================================================
-const azizEventsRoutes = require('./Aziz/routes/events.routes');
-const azizIncidentsRoutes = require('./Aziz/routes/incidents.routes');
-const azizServicesRoutes = require('./Aziz/routes/services.routes');
+const AzizRoutes = require('./routes/eventRoutesAziz');
 
-app.use('/api/events', azizEventsRoutes);
-app.use('/api/incidents', azizIncidentsRoutes);
-app.use('/api/services', azizServicesRoutes);
+app.use('/api', AzizRoutes);
 
 // ============================================================================
 // ROUTES TOM - Agrégations et opérations GET/POST
 // ============================================================================
-const RoutesAgreg = require('./Tom/RoutesAgreg');
-const RoutesGET = require('./Tom/RoutesGET');
-const RoutesPOST = require('./Tom/RoutesPOST');
+const TomRoutes = require('./routes/eventRoutesTom');
 
-app.use('/api/tom/agreg', RoutesAgreg);
-app.use('/api/tom/get', RoutesGET);
-app.use('/api/tom/post', RoutesPOST);
+app.use('/api', TomRoutes);
 // ============================================================================
 // ROUTES SERGE - Opérations utilisateur et agrégations
 // ============================================================================
-const AgregCompteEvent = require('./Serge/AgregCompteEvent');
-const AgregOrgaEvent = require('./Serge/AgregOrgaEvent');
-const UpdateUserName = require('./Serge/UpdateUserName');
-const UpdateUserPassword = require('./Serge/UpdateUserPassword');
-const UserNameExist = require('./Serge/UserNameExist');
+const SergeRoutes = require('./routes/eventRoutesSerge');
 
-app.use('/api/events', AgregCompteEvent);
-app.use('/api/events', AgregOrgaEvent);
-app.use('/api/user/name', UpdateUserName);
-app.use('/api/user/password', UpdateUserPassword);
-app.use('/api/user/check', UserNameExist);
+app.use('/api', SergeRoutes);
 
 // ============================================================================
 // ROUTES NICO - Opérations CRUD
 // ============================================================================
-const nicoDelete = require('./Nico/del');
-const nicoEdit = require('./Nico/edit');
-const nicoGet = require('./Nico/get');
+const NicoRoutes = require('./routes/eventRoutesNico');
 
-app.use('/api/nico/delete', nicoDelete);
-app.use('/api/nico/edit', nicoEdit);
-app.use('/api/nico/get', nicoGet);
+app.use('/api', NicoRoutes);
 
 
 // Gestion des erreurs 404
