@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`---`);
-    console.log(`🚀 SERVEUR GROUPE DÉMARRÉ : http://localhost:${PORT}`);
-    console.log(`📡 TESTER LES ROUTES PAR PRÉNOM (ex: /api/events/tom)`);
+    console.log(`SERVEUR GROUPE DÉMARRÉ : http://localhost:${PORT}`);
+    console.log(`TESTER LES ROUTES PAR PRÉNOM (ex: /api/events/tom)`);
     console.log(`---`);
 });
