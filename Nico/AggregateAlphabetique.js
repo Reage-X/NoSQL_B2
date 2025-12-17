@@ -4,10 +4,7 @@ import Event from '../models/Event.js';
 
 const router = express.Router();
 
-/**
- * ROUTE - GET (AGGREGATION) : Récupérer les titres des événements triés par ordre alphabétique
- * Endpoint: GET /api/events/titles/sorted
- */
+
 router.get('/titles/sorted', async (req, res) => {
   try {
     const titles = await Event.aggregate([
