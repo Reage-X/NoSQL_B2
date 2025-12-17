@@ -1,15 +1,13 @@
-//routes/eventRoutes.js
-import express from 'express';
-import Event from '../models/Event.js';
+const express = require('express');
+const Event = require('../models/Event');
+const validator = require('validator');
 
 const router = express.Router();
-
 
 router.get('/:id/title', async (req, res) => {
   try {
     const { id } = req.params;
 
-   
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         success: false,
@@ -17,7 +15,6 @@ router.get('/:id/title', async (req, res) => {
       });
     }
 
-  
     const event = await Event.findById(id);
 
     if (!event) {
@@ -29,9 +26,8 @@ router.get('/:id/title', async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Titre récupéré avec succès',
       data: {
-        id: event._id,
+        id: event.id,
         title: event.title
       }
     });
@@ -45,4 +41,3 @@ router.get('/:id/title', async (req, res) => {
   }
 });
 
-export default router;
