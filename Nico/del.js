@@ -1,11 +1,3 @@
-//routes/eventRoutes.js
-import express from 'express';
-import Event from '../models/Event.js';
-import validator from 'validator';
-
-const router = express.Router();
-
-
 router.delete('/:id/title', async (req, res) => {
   try {
     const { id } = req.params;
@@ -17,17 +9,15 @@ router.delete('/:id/title', async (req, res) => {
       });
     }
 
-    
     const event = await Event.findById(id);
-    
+
     if (!event) {
       return res.status(404).json({
         success: false,
         message: 'Événement non trouvé'
       });
     }
-
- 
+    
     event.title = 'Titre non disponible';
     await event.save();
 
@@ -35,9 +25,8 @@ router.delete('/:id/title', async (req, res) => {
       success: true,
       message: 'Titre supprimé avec succès',
       data: {
-        id: event._id,
-        title: event.title,
-        description: event.description
+        id: event.id,
+        title: event.title
       }
     });
 
@@ -48,6 +37,7 @@ router.delete('/:id/title', async (req, res) => {
       error: error.message
     });
   }
+});
 });
 
 export default router;
