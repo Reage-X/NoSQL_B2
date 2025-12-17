@@ -18,10 +18,10 @@ export const saveStatsToJson = (data) => {
         // Écriture synchrone pour respecter la consigne (fs.writeFileSync)
         fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
         
-        console.log(`💾 Statistiques exportées avec succès dans : ${filePath}`);
+        console.log(`Statistiques exportées avec succès dans : ${filePath}`);
         return filePath;
     } catch (error) {
-        console.error("❌ Erreur lors de l'écriture du fichier JSON :", error.message);
+        console.error("Erreur lors de l'écriture du fichier JSON :", error.message);
         throw error;
     }
 };
