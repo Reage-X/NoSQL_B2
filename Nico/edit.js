@@ -1,17 +1,8 @@
-//routes/eventRoutes.js
-import express from 'express';
-import Event from '../models/Event.js';
-import validator from 'validator';
-
-const router = express.Router();
-
-
 router.patch('/:id/title', async (req, res) => {
   try {
     const { id } = req.params;
     const { title } = req.body;
 
-   
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         success: false,
@@ -19,24 +10,21 @@ router.patch('/:id/title', async (req, res) => {
       });
     }
 
-   
-    if (!title || typeof title !== "string" || validator.isEmpty(title.trim())) {
+    if (!title || typeof title !== 'string' || validator.isEmpty(title.trim())) {
       return res.status(400).json({
         success: false,
-        message: "Le nouveau titre est requis et ne peut pas être vide"
+        message: 'Le titre est requis et ne peut pas être vide'
       });
     }
 
- 
     const event = await Event.findById(id);
-    
+
     if (!event) {
       return res.status(404).json({
         success: false,
         message: 'Événement non trouvé'
       });
     }
-
 
     event.title = title.trim();
     await event.save();
@@ -45,9 +33,8 @@ router.patch('/:id/title', async (req, res) => {
       success: true,
       message: 'Titre modifié avec succès',
       data: {
-        id: event._id,
-        title: event.title,
-        description: event.description
+        id: event.id,
+        title: event.title
       }
     });
 
@@ -60,4 +47,3 @@ router.patch('/:id/title', async (req, res) => {
   }
 });
 
-export default router;
