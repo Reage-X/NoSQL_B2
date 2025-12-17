@@ -11,20 +11,20 @@ const router = express.Router();
 router.get('/titles/sorted', async (req, res) => {
   try {
     const titles = await Event.aggregate([
-      // Exclure les événements sans titre ou avec titre vide
+    
       {
         $match: {
           title: { $exists: true, $ne: '' }
         }
       },
-      // Ne garder que le champ title
+     
       {
         $project: {
           _id: 0,
           title: 1
         }
       },
-      // Trier par ordre alphabétique (A → Z)
+   
       {
         $sort: {
           title: 1
