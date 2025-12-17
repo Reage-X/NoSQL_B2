@@ -7,11 +7,16 @@ const EventSchema = new mongoose.Schema({
   startDate: { type: Date, required: true }, // MongoDB gère les dates nativement
   endDate: { type: Date },
   location: { type: String },
+  populate: { type: Boolean, default: false },
   organisateurId: { 
     type: mongoose.Schema.Types.ObjectId, // Lien vers le compte
     ref: 'Compte',
     required: true 
-  }
+  },
+  participantsId: [{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Compte' 
+  }]
 });
 
 // Pour que l'objet JSON renvoyé ait un champ 'id' (string) au lieu de '_id' (object)
