@@ -1,9 +1,0 @@
-[
-  {
-    "category": "incendie",
-    "severity": "grave",
-    "location": "Rue de Rivoli",
-    "district": 1,
-    "status": "en cours"
-  }
-]
