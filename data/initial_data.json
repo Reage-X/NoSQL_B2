@@ -1,0 +1,14 @@
+[
+    {
+      "title": "Conférence IA",
+      "description": "Tout savoir sur Gemini et Node.js",
+      "date": "2025-05-15",
+      "popularity": 100
+    },
+    {
+      "title": "Workshop MongoDB",
+      "description": "Maîtriser les agrégations",
+      "date": "2025-06-10",
+      "popularity": 85
+    }
+  ]
