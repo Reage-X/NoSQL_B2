@@ -2,10 +2,12 @@ import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import validator from "validator";
-import User from "../models/User.js";
+import Compte from "../models/Compte.js";
+import Event from "../models/Event.js";
 
 const router = express.Router();
 
+// Middleware d'authentification
 function requireAuth(req, res, next) {
   const header = req.headers.authorization;
 
@@ -17,63 +19,71 @@ function requireAuth(req, res, next) {
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    req.auth = payload; // { userId, role }
+    req.auth = payload;
     return next();
   } catch (err) {
     return res.status(401).json({ success: false, message: "Token invalide" });
   }
 }
- 
+
+// ------------------------------------------------------------------
+// 1. POST /register - Création d'un compte
+// ------------------------------------------------------------------
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { username, email, password } = req.body;
 
-    // Validation
-    if (!name || !email || !password) {
+    if (!username || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Champs obligatoires manquants (name, email, password).",
+        message: "Champs obligatoires manquants (username, email, password).",
       });
     }
+    
     if (!validator.isEmail(email)) {
       return res.status(400).json({ success: false, message: "Email invalide." });
     }
+    
     if (typeof password !== "string" || password.length < 6) {
       return res.status(400).json({
         success: false,
         message: "Mot de passe trop court (min 6 caractères).",
       });
     }
-    // Email unique
-    const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
+
+    const existingUser = await Compte.findOne({ email: email.toLowerCase().trim() });
     if (existingUser) {
       return res.status(409).json({ success: false, message: "Email déjà utilisé." });
     }
+
+    const existingUsername = await Compte.findOne({ username: username.trim() });
+    if (existingUsername) {
+      return res.status(409).json({ success: false, message: "Nom d'utilisateur déjà utilisé." });
+    }
+
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const newUser = await User.create({
-      name: name.trim(),
+    const newUser = await Compte.create({
+      username: username.trim(),
       email: email.toLowerCase().trim(),
-      passwordHash,
-      role: "user",
+      password: passwordHash
     });
 
-    
     const token = jwt.sign(
-      { userId: newUser._id.toString(), role: newUser.role },
+      { userId: newUser._id.toString(), email: newUser.email },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
     return res.status(201).json({
       success: true,
-      message: "Compte créé.",
+      message: "Compte créé avec succès.",
       data: {
         user: {
-          _id: newUser._id,
-          name: newUser.name,
+          id: newUser._id,
+          username: newUser.username,
           email: newUser.email,
-          role: newUser.role,
+          createdAt: newUser.createdAt
         },
         token,
       },
@@ -83,6 +93,9 @@ router.post("/register", async (req, res) => {
   }
 });
 
+// ------------------------------------------------------------------
+// 2. PUT /:id - Mise à jour d'un compte
+// ------------------------------------------------------------------
 router.put("/:id", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -90,38 +103,56 @@ router.put("/:id", requireAuth, async (req, res) => {
     if (!validator.isMongoId(id)) {
       return res.status(400).json({ success: false, message: "ID utilisateur invalide." });
     }
+
     const isOwner = req.auth.userId === id;
-    const isAdmin = req.auth.role === "admin";
-    if (!isOwner && !isAdmin) {
-      return res.status(403).json({ success: false, message: "Non autorisé." });
+    if (!isOwner) {
+      return res.status(403).json({ success: false, message: "Non autorisé à modifier ce compte." });
     }
 
-    const user = await User.findById(id);
+    const user = await Compte.findById(id);
     if (!user) return res.status(404).json({ success: false, message: "Utilisateur introuvable." });
 
-    const { name, email, password } = req.body;
+    const { username, email, password } = req.body;
 
-    if (name !== undefined) {
-      if (typeof name !== "string" || !name.trim()) {
-        return res.status(400).json({ success: false, message: "Nom invalide." });
+    if (username !== undefined) {
+      if (typeof username !== "string" || !username.trim()) {
+        return res.status(400).json({ success: false, message: "Nom d'utilisateur invalide." });
       }
-      user.name = name.trim();
+      
+      const trimmedUsername = username.trim();
+      if (trimmedUsername !== user.username) {
+        const usernameUsed = await Compte.findOne({ 
+          username: trimmedUsername, 
+          _id: { $ne: user._id } 
+        });
+        if (usernameUsed) {
+          return res.status(409).json({ success: false, message: "Nom d'utilisateur déjà utilisé." });
+        }
+      }
+      user.username = trimmedUsername;
     }
 
+    // Mise à jour de l'email (SECTION CORRIGÉE)
     if (email !== undefined) {
       if (!validator.isEmail(email)) {
         return res.status(400).json({ success: false, message: "Email invalide." });
       }
 
       const emailNormalized = email.toLowerCase().trim();
-      const emailUsed = await User.findOne({ email: emailNormalized, _id: { $ne: user._id } });
-      if (emailUsed) {
-        return res.status(409).json({ success: false, message: "Email déjà utilisé." });
+      
+      if (emailNormalized !== user.email) {
+        const emailUsed = await Compte.findOne({ 
+          email: emailNormalized, 
+          _id: { $ne: user._id } 
+        });
+        if (emailUsed) {
+          return res.status(409).json({ success: false, message: "Email déjà utilisé." });
+        }
       }
-
-      user.email = emailNormalized;
+      user.email = emailNormalized
     }
 
+    // Mise à jour du mot de passe (SECTION CORRIGÉE)
     if (password !== undefined) {
       if (typeof password !== "string" || password.length < 6) {
         return res.status(400).json({
@@ -129,24 +160,27 @@ router.put("/:id", requireAuth, async (req, res) => {
           message: "Mot de passe trop court (min 6 caractères).",
         });
       }
-      user.passwordHash = await bcrypt.hash(password, 10);
+      user.password = await bcrypt.hash(password, 10);
     }
+
     await user.save();
+
+    const userResponse = user.toJSON();
+    delete userResponse.password;
 
     return res.json({
       success: true,
-      message: "Compte mis à jour.",
-      data: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      message: "Compte mis à jour avec succès.",
+      data: userResponse
     });
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message });
   }
-}); 
+});
+
+// ------------------------------------------------------------------
+// 3. DELETE /:id - Suppression d'un compte
+// ------------------------------------------------------------------
 router.delete("/:id", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -156,51 +190,122 @@ router.delete("/:id", requireAuth, async (req, res) => {
     }
 
     const isOwner = req.auth.userId === id;
-    const isAdmin = req.auth.role === "admin";
-    if (!isOwner && !isAdmin) {
-      return res.status(403).json({ success: false, message: "Non autorisé." });
+    if (!isOwner) {
+      return res.status(403).json({ success: false, message: "Non autorisé à supprimer ce compte." });
     }
 
-    const user = await User.findById(id);
+    const user = await Compte.findById(id);
     if (!user) return res.status(404).json({ success: false, message: "Utilisateur introuvable." });
 
     await user.deleteOne();
- 
-    return res.json({ success: true, message: "Compte supprimé." });
+
+    return res.json({ 
+      success: true, 
+      message: "Compte supprimé avec succès.",
+      data: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        deletedAt: new Date()
+      }
+    });
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message });
   }
 });
+
+// ------------------------------------------------------------------
+// 4. GET /with-events - Route admin
+// ------------------------------------------------------------------
 router.get("/with-events", requireAuth, async (req, res) => {
   try {
+    const adminEmails = process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split(',') : [];
+    const isAdmin = adminEmails.includes(req.auth.email);
     
-    if (req.auth.role !== "admin") {
-      return res.status(403).json({ success: false, message: "Accès réservé aux admins." });
+    if (!isAdmin) {
+      return res.status(403).json({ success: false, message: "Accès réservé aux administrateurs." });
     }
 
-    const usersWithEvents = await User.aggregate([
+    const usersWithEvents = await Compte.aggregate([
       {
         $lookup: {
-          from: "events", 
+          from: "events",
           localField: "_id", 
-          foreignField: "createdBy", 
+          foreignField: "creator",
           as: "events" 
         }
       },
       {
-        $match: { "events.0": { $exists: true } } 
+        $match: { "events.0": { $exists: true } }
       },
       {
         $project: {
-          passwordHash: 0
+          password: 0,
+          __v: 0
         }
       }
     ]);
 
-    return res.json({ success: true, data: usersWithEvents });
+    return res.json({ 
+      success: true, 
+      count: usersWithEvents.length,
+      data: usersWithEvents 
+    });
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message });
   }
 });
 
-export default router;
+// ------------------------------------------------------------------
+// 5. POST /login - Connexion
+// ------------------------------------------------------------------
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email et mot de passe requis."
+      });
+    }
+
+    const user = await Compte.findOne({ email: email.toLowerCase().trim() });
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Email ou mot de passe incorrect."
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: "Email ou mot de passe incorrect."
+      });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id.toString(), email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    const userResponse = user.toJSON();
+    delete userResponse.password;
+
+    return res.json({
+      success: true,
+      message: "Connexion réussie.",
+      data: {
+        user: userResponse,
+        token
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+export default router
