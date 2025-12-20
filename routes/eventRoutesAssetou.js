@@ -26,9 +26,7 @@ function requireAuth(req, res, next) {
   }
 }
 
-// ------------------------------------------------------------------
-// 1. POST /register - Création d'un compte
-// ------------------------------------------------------------------
+
 router.post("/register", async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -93,9 +91,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// ------------------------------------------------------------------
-// 2. PUT /:id - Mise à jour d'un compte
-// ------------------------------------------------------------------
+
 router.put("/:id", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -178,9 +174,7 @@ router.put("/:id", requireAuth, async (req, res) => {
   }
 });
 
-// ------------------------------------------------------------------
-// 3. DELETE /:id - Suppression d'un compte
-// ------------------------------------------------------------------
+
 router.delete("/:id", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -214,9 +208,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
   }
 });
 
-// ------------------------------------------------------------------
-// 4. GET /with-events - Route admin
-// ------------------------------------------------------------------
+
 router.get("/with-events", requireAuth, async (req, res) => {
   try {
     const adminEmails = process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split(',') : [];
@@ -256,9 +248,7 @@ router.get("/with-events", requireAuth, async (req, res) => {
   }
 });
 
-// ------------------------------------------------------------------
-// 5. POST /login - Connexion
-// ------------------------------------------------------------------
+
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
